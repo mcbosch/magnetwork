@@ -29,6 +29,7 @@ class MagGraph:
         >>> edge_attr_dict = {attr1: value1,
                               attr2: value2,
                               ...}
+                              
     where node_dict is the main structure that stores the graph, adjlist_dict stores the neighbors of each node, and edge_attr_dict stores the attributes of each edge. This dictionaries are built with the methods node_dict_fatcory, adjlist_dict_factory and edge_attr_dict_factory,etc. That can be modified to change the structure of the graph.
 
     node_dict_factory : function, (default: dict)
@@ -62,109 +63,76 @@ class MagGraph:
         Factory function to be used to create the graph attribute
         dict which holds attribute values keyed by attribute name.
         It should require no arguments and return a dict-like object.
+
+    NOTE for MODIFICATIONs: If you want to modify the structure of the graph, add attrubutes, etc, you can modify the factory methods. For example, if you want to add a default attribute to each node, you can modify the node_attr_dict_factory method to return a dict with the default attribute.
     
     Examples
     --------
     """
 
-    # TODO: Anylize previous methods
-    # Consider necessary and not necessary methods: in this repo will be only the necessary ones. It will be a extended repository for more complex methods, to merge with networkx or other libraries.
+    # TODO: We define the factory variables
+    node_dict_factory = dict
+    node_attr_dict_factory = dict
+    adjlist_outer_dict_factory = dict
+    adjlist_inner_dict_factory = dict
+    edge_attr_dict_factory = dict
+    graph_attr_dict_factory = dict
 
-    def __init__(self, incoming_graph_data=None, **attr):
+
+    def __init__(self, **attr):
         r"""
         Initialize a magnetic graph.
+
+        Attributes
+        ----------
+        Note that we can add attributes that we haven't considered in this class. Here we describe the main attributes of the class, and those that we use in the methods.
+            name: string, the name of the graph.
         """
-        self.graph = {}
-        self._node = {}
-        self._adj = {}
-        
+        self.graph = self.graph_attr_dict_factory() 
+        self._node = self.node_dict_factory()
+        self._adj = self.adjlist_outer_dict_factory()
         self.graph.update(attr)
 
-    def add_node(self, node_for_adding, **attr):
-        if node_for_adding not in self._node:
-            if node_for_adding is None:
-                raise ValueError("None object cannot be a node.")
-            self._adj[node_for_adding] = {}
-            attr_dict = self.node[node_for_adding] = self.node_attr_dict_factory()
 
-    def add_nodes_from(self, nodes_for_adding, **attr):
-        pass
-        
-    # TODO:
-    def __str__(self):
-        pass
+    @property
+    def name(self):
+        """
+        String with the name of the graph. The name is stored in the graph as an attribute with key "name" (added in the init).If we haven't set a name it returns an empty string.
+        """
+        return self.graph.get("name", "")
 
-    def __iter__(self):
-        pass
-
-    def __contains__(self, node):
-        pass
-
-    def __len__(self):
-        pass
-
-    def __getitem__(self, node):
-        pass
-
+    @name.setter
+    def name(self, name):
+        self.graph["name"] = name
     
-
-    def remove_node(self, node):
-        pass
-
-    def remove_nodes_from(self, nodes):
-        pass
-
-    @cached_property # Note: Cached property is used to cache the result of the property, so it is not computed again.
-    def nodes(self):
-        pass
-
-    def add_edge(self, u_of_edge, v_of_edge, **attr):
-        pass
-
-    def add_edges_from(self, ebunch_to_add, **attr):
-        pass
-
-    def add_weighted_edges_from(self, ebunch_to_add, weight='weight', **attr):
-        pass
-
-    def remove_edge(self, u, v):
-        pass
-
-    def remove_edges_from(self, ebunch):
-        pass
-
-    def update(self, edges=None, nodes=None):
+    def __str__(self):
         """
-        Updates a graph using edges and nodes as an input.
+        A string representation of the graph, with general information about the graph.
         """
-        if edges is not None:
-            if nodes is not None:
-                self.add_nodes_from(nodes)
-                self.add_edges_from(edges)
-            else:
-                # check if edges is a Graph object
-                try:
-                    graph_nodes = edges.nodes
-                    graph_edges = edges.edges
-                except AttributeError:
-                    # edge not Graph-like
-                    self.add_edges_from(edges)
-                else:  # edges is Graph-like
-                    self.add_nodes_from(graph_nodes.data())
-                    self.add_edges_from(graph_edges.data())
-                    self.graph.update(edges.graph)
-        elif nodes is not None:
-            self.add_nodes_from(nodes)
 
-    def has_edge(self, u, v):
-        pass
+        return "".join([
+            type(self).__name__,
+            f"named {self.name!r}" if self.name else "",
+            f" with {self.number_of_nodes()} nodes and {self.number_of_edges()} edges"
+        ])
 
-    def neighbors(self, node):
-        pass
+    def number_of_nodes(self):
+        return len(self._node)
+    
+    def number_of_edges(self, u=None, v=None):
+        if u is None:
+            return int(self.size())
+        if v in self._adj[u]:
+            return 1
+        return 0
+    
 
     @cached_property
-    def edges(self):
+    def degree(self, weight=None):
+        # TODO (implement pq NetworkX ho fa complexe)
         pass
 
-    # TODO: ... there are more methods to implement, see networkx documentation.
-    
+
+    def size(self, weight=None):
+        s = sum(d for v, d in self.degree(weight=weight))
+        return s // 2 if weight is None else s / 2
