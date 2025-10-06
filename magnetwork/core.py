@@ -205,10 +205,10 @@ class MagGraph:
             except KeyError:
                 pass
     
-    # TODO
+    # TODO: Define NodeView Class
     @cached_property
     def nodes(self):
-        pass
+        return self._node
     
     # DONE
     def number_of_nodes(self):
@@ -310,37 +310,82 @@ class MagGraph:
         self._adj[u][v] = datadict_d1
         self._adj[v][u] = datadict_d2
     
-    # TODO
+    # DONE
     def remove_edge(self, u, v):
-        pass
-
-    # TODO
+        """Remove the edges between u and v
+        Parameters
+        ----------
+            u,v two nodes of the graph
+                Remove edges from u and v
+        Raises
+        ------
+            ValueError if the node u or v is not 
+            in the graph.
+        """
+        if u not in self._node or v not in self._node:
+            raise ValueError("Nodes must be in the graph")
+        
+        del self._adj[u][v]
+        del self._adj[v][u]
+        
+    # DONE
     def remove_edges_from(self, edges):
-        pass
+        
+        for e in edges:
+            u, v = e
+            if u not in self._node or v not in self._node:
+                raise ValueError(f"Nodes from {e} must be in the graph")
+            
+            del self._adj[u][v]
+            del self._adj[v][u]
 
-    # TODO
+    # DONE
     def has_edge(self, u, v):
-        pass
-
-    # TODO
+        try:
+            return v in self._adj[u]
+        except KeyError:
+            return False
+            
+    # DONE
+    # NOTE: Update so the input can be also a graph type object
+    def update(self, edges=None, nodes=None):
+        if edges is not None:
+            if nodes is not None:
+                self.add_nodes_from(nodes)
+                self.add_edges_from(edges)
+            else:
+                self.add_edges_from(edges)
+        elif nodes is not None:
+            self.add_nodes_from(nodes)
+        else:
+            raise ValueError("update needs nodes or edges input")
+    
+    # DONE
     def neighbors(self, u):
-        pass
+        if u not in self._node:
+            raise ValueError("Node must be in the graph")
+        return iter(self._adj[u])
 
-    # TODO
+    # TODO: Define an EdgeView class
     def edges(self):
-        pass
-
-    # TODO
+        return self._adj
+        
+    # DONE
     def clear(self):
-        pass
+        self._node.clear()
+        self._adj.clear()
+        self.graph.clear()
 
-    # TODO
+    # DONE
     def clear_edges(self):
-        pass
+        for v in self._adj:
+            self._adj[v].clear()
 
-    # TODO
+    # DONE
     def number_of_edges(self):
-        pass
+        d = 0
+        for neigh in self._adj.values():
+            d += len(neigh)
 
     # TODO
     def update_potential(self, u, v, potential):
