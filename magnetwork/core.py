@@ -7,6 +7,8 @@ Simplified implementation of magnetic graphs in Python. The structure is inspire
 In this file, we define the MagGraph class, an some of the most basic methods. We won't define a basic class of Graph for undirected graphs, since we can use NetworkX for that. Moreover, if you want to work with both, magnetic and undirected graphs, you can consider a magnetic graph with a zero potential, or any potential cohomologous with zero.
 """
 
+# NOTE: Maybe we could build a class for the potentials
+
 class MagGraph:
     """
     NOTE: If you are not used to NetworkX, please read the following description carefully. And if you don't know anythig about Magnetic Graphs, please read the survey: https://arxiv.org/??????. Please, cite the survey if you use this code for research. 
@@ -387,14 +389,14 @@ class MagGraph:
         for neigh in self._adj.values():
             d += len(neigh)
 
-    # TODO
+    # DONE
     def update_potential(self, u, v, potential):
-        pass
+        if u not in self._node or v not in self._node:
+            raise ValueError("Nodes must be in the graph")
+        if  v not in self._adj[u]:
+            self.add_edge(u,v,potential=potential)
+        else:
+            self._adj[u][v]['potential'] = potential
+            self._adj[v][u]['potential'] = -potential
 
-    # TODO
-    def update_outer_potentials(self, u, potentials):
-        pass
-
-    # TODO 
-    def update_all_potentials(self, potentials):
         pass
